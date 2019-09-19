@@ -54,6 +54,10 @@ def lime_call(xgb, sample = None, nb_samples = 5, feats='all',
                                          top_labels = 1)#,
                                          #labels = list(range(xgb.num_class)))
 
+
+
+        # we collect info for the top class 
+        expl_for_sampling = []
         expl = []
 
         # choose which features in the explanation to focus on
@@ -72,6 +76,9 @@ def lime_call(xgb, sample = None, nb_samples = 5, feats='all',
 
             s_human_readable = ""
             for k, v in enumerate(exp.as_list(label=i)):
+                s_human_readable_k = ""
+                name = ""
+                value = ""
                 if (feats == 1 and v[1] < 0) or (feats == -1 and v[1] >= 0):
                     continue
 
@@ -80,11 +87,13 @@ def lime_call(xgb, sample = None, nb_samples = 5, feats='all',
                     f = a[0].strip()
                     l = a[1].strip()
                     u = l
-
+                    name = f 
                     if (xgb.use_categorical):
                         fid =  f2imap[f]
                         fvid = int(a[1])
-                        s_human_readable = s_human_readable + f  + " = [" + str(xgb.categorical_names[fid][fvid]) +"," + str(v[1])+ "] "
+                        s_human_readable_k =   f  + " = [" + str(xgb.categorical_names[fid][fvid]) +"," + str(v[1])+ "] "
+                        s_human_readable = s_human_readable + s_human_readable_k
+                        value = str(xgb.categorical_names[fid][fvid]) 
 
                 else:
                     a = v[0].split('<')
@@ -103,9 +112,11 @@ def lime_call(xgb, sample = None, nb_samples = 5, feats='all',
                         l = float(a[0].strip())
                         f = a[1].strip(' =')
                         u = float(a[2].strip(' ='))
-
+                    name = f
                 # expl.append(tuple([f2imap[f], l, u, v[1] >= 0]))
                 expl.append(f2imap[f])
+                assert(l == u)
+                expl_for_sampling.append([{"id":f2imap[f], "score":v[1], "name":v[0], "value":float(l),  "original_name":f, "original_value":value}])
 
             if (xgb.use_categorical):
                 if (len(s_human_readable) > 0):
@@ -114,8 +125,7 @@ def lime_call(xgb, sample = None, nb_samples = 5, feats='all',
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                 resource.getrusage(resource.RUSAGE_SELF).ru_utime - timer
         print('  time: {0:.2f}'.format(timer))
-
-        return sorted(expl)
+        return sorted(expl), expl_for_sampling
 
     ###################################### TESTING
     max_sample = nb_samples

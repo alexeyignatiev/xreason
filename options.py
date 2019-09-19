@@ -20,6 +20,7 @@ class Options(object):
         # actions
         self.train = False
         self.encode = 'none'
+        self.yieldexp =  'none'
         self.explain = ''
         self.useanchor = False
         self.uselime = False
@@ -58,7 +59,7 @@ class Options(object):
 
         try:
             opts, args = getopt.getopt(command[1:],
-                                    'a:ce:d:hL:lm:Mn:o:pr:qs:tvVx:',
+                                    'a:ce:d:hL:lm:Mn:o:pr:qs:tvVx:y:',
                                     ['accmin=',
                                      'encode=',
                                      'help',
@@ -82,12 +83,13 @@ class Options(object):
                                      'validate',
                                      'verbose',
                                      'explain=',
+                                     'yieldexp=',
                                      ])
         except err:
             sys.stderr.write(str(err).capitalize())
             self.usage()
             sys.exit(1)
-
+        print(opts)
         for opt, arg in opts:
             if opt in ('-a', '--accmin'):
                 self.accmin = float(arg)
@@ -124,6 +126,8 @@ class Options(object):
                 self.testsplit = float(arg)
             elif opt in ('-t', '--train'):
                 self.train = True
+            elif opt in ('-y', '--yieldexp'):
+                self.yieldexp = str(arg)
             elif opt in ('-V', '--validate'):
                 self.validate = True
             elif opt in ('-v', '--verbose'):
@@ -183,3 +187,4 @@ class Options(object):
         print('        -v, --verbose              Increase verbosity level')
         print('        -V, --validate             Validate explanation (show that it is too optimistic)')
         print('        -x, --explain              Explain a decision for a given comma-separated sample (default: none)')
+        print('        -y, --yieldexp            Explanation for a given comma-separated sample (default: none)')

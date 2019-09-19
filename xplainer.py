@@ -56,7 +56,6 @@ if __name__ == '__main__':
 
             # encode it and save the encoding to another file
             xgb.encode(test_on=options.explain)
-
         if options.explain:
             if not xgb:
                 if options.uselime or options.useanchor:
@@ -64,15 +63,20 @@ if __name__ == '__main__':
                 else:
                     # abduction-based approach requires an encoding
                     xgb = XGBooster(options, from_encoding=options.files[0])
-
             # checking LIME should use all features
             if not options.limefeats:
                 options.limefeats = len(data.names) - 1
 
             # explain using anchor or the abduction-based approach
-            expl = xgb.explain(options.explain,
+            expl, expl_for_sampling = xgb.explain(options.explain,
                     use_lime=lime_call if options.uselime else None,
                     use_anchor=anchor_call if options.useanchor else None)
 
+            if options.yieldexp is not 'none':
+                for v in expl_for_sampling: 
+                    print(v)
+                exit()
+     
             if (options.uselime or options.useanchor) and options.validate:
                 xgb.validate(options.explain, expl)
+

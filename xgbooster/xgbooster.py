@@ -250,10 +250,10 @@ class XGBooster(object):
         """
 
         if use_lime:
-            expl = use_lime(self, sample=sample, nb_samples=5,
+            expl, expl_for_sampling = use_lime(self, sample=sample, nb_samples=5,
                             nb_features_in_exp=nof_feats)
         elif use_anchor:
-            expl = use_anchor(self, sample=sample, nb_samples=5,
+            expl, expl_for_sampling = use_anchor(self, sample=sample, nb_samples=5,
                             nb_features_in_exp=nof_feats, threshold=0.95)
         else:
             if 'x' not in dir(self):
@@ -265,7 +265,7 @@ class XGBooster(object):
                     expl_ext, prefer_ext)
 
         # returning the explanation
-        return expl
+        return expl, expl_for_sampling
 
     def validate(self, sample, expl):
         """
