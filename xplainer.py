@@ -73,6 +73,7 @@ if __name__ == '__main__':
                     use_anchor=anchor_call if options.useanchor else None)
 
             if options.yieldexp is not 'none':
+                print("\n\nExplainer output:")
                 for v in expl_for_sampling: 
                     print(v)
                 exit()
