@@ -154,6 +154,23 @@ if __name__ == '__main__':
 
 Also, see [a few example scripts](experiment) for details on how to validate heuristic explanations for every unique sample of the benchmark datasets (note that each of the datasets must be properly processed and the corresponding models must be trained in advance).
 
+
+### Generated a heuristic explanation with structured output
+
+Heuristic explanations can be computed using either parameter ```-q``` ```-l``` for a data instance specified with option ```-x 'comma,separated,values'```. 
+In addition we need a flag ```-y 'basic' ```.  For example, given an instance ```5,0,0,0,0,0,0,0,0,0,0``` and the trained model, the prediction for this instance can be explained by Anchor like this:
+
+```
+$ xplainer.py -c -q -y 'basic' -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
+```
+
+If you want to compute an explanation using LIME, execute the following command. Note that LIME computes an explanation of a size specified as input, using option ```-L```. In this example we instruct LIME to use 5 feature values in the explanation:
+
+```
+$ xplainer.py -c -y 'basic'  -l -L 5 -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
+```
+
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
