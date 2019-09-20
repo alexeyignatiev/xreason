@@ -127,7 +127,7 @@ def lime_call(xgb, sample = None, nb_samples = 5, feats='all',
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                 resource.getrusage(resource.RUSAGE_SELF).ru_utime - timer
         print('  time: {0:.2f}'.format(timer))
-        print(expl_for_sampling)
+        #print(expl_for_sampling)
         return sorted(expl), expl_for_sampling
 
     ###################################### TESTING
