@@ -79,7 +79,9 @@ def anchor_call(xgb, sample=None, nb_samples=5, feats='all',
 
                 expl_for_sampling.append(
                     [{"id":k, "score":"", "name":exp.names()[k], "value":feat_sample[v],  "original_name": explainer.feature_names[v], "original_value":explainer.categorical_names[v][int(feat_sample[v])]}])
-
+        else:
+            print("We only support datasets with categorical features for Anchor. Please pre-process your data.")
+            exit()
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                 resource.getrusage(resource.RUSAGE_SELF).ru_utime - timer
         print('  time: {0:.2f}'.format(timer))
