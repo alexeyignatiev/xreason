@@ -43,7 +43,7 @@ def anchor_call(xgb, sample=None, nb_samples=5, feats='all',
         except Exception as inst:
             print("Cannot parse input sample:", sample, inst)
             exit()
-        print("Considering a sample with features:", feat_sample)
+        print("\n\n\n Starting Anchor explainer... \nConsidering a sample with features:", feat_sample)
         if not (len(feat_sample) == len(xgb.X_train[0])):
             print("Unmatched features are not supported: The number of features in a sample {} is not equal to the number of features in this benchmark {}".format(len(feat_sample), len(xgb.X_train[0])))
             exit()
