@@ -117,9 +117,9 @@ def lime_call(xgb, sample = None, nb_samples = 5, feats='all',
                 expl.append(f2imap[f])
                 if (xgb.use_categorical):
                     assert(l == u)
-                    expl_for_sampling.append([{"id":f2imap[f], "score":v[1], "name":v[0], "value":float(l),  "original_name":f, "original_value":value}])
+                    expl_for_sampling.append([{"id":f2imap[f], "score":v[1], "name":v[0], "values":float(l),  "original_name":f, "original_value":value}])
                 else:
-                    expl_for_sampling.append([{"id":f2imap[f], "score":v[1], "name":v[0], "value":[l,u],  "original_name":f, "original_value":value}])
+                    expl_for_sampling.append([{"id":f2imap[f], "score":v[1], "name":v[0], "values":[l,u],  "original_name":f, "original_value": "NA"}])
             if (xgb.use_categorical):
                 if (len(s_human_readable) > 0):
                     print("\t \t Features in explanations (with provided categorical labels): ", s_human_readable)
