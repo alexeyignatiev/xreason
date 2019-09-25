@@ -24,6 +24,7 @@ class Options(object):
         self.explain = ''
         self.useanchor = False
         self.uselime = False
+        self.useashap = False
         self.limefeats = 5
         self.validate = False
         self.use_categorical = False
@@ -59,7 +60,7 @@ class Options(object):
 
         try:
             opts, args = getopt.getopt(command[1:],
-                                    'a:ce:d:hL:lm:Mn:o:pr:qs:tvVx:y:',
+                                    'a:ce:d:hL:lm:Mn:o:pr:qs:tvVx:wy:',
                                     ['accmin=',
                                      'encode=',
                                      'help',
@@ -67,6 +68,7 @@ class Options(object):
                                      'use-anchor=',
                                      'lime-feats=',
                                      'use-lime=',
+                                     'use-shap=',                                     
                                      'use-categorical=',
                                      'preprocess-categorical=',
                                      'pfiles=',
@@ -104,6 +106,8 @@ class Options(object):
                 self.useanchor = True
             elif opt in ('-l', '--use-lime'):
                 self.uselime = True
+            elif opt in ('-w', '--use-shap'):
+                self.useshap = True
             elif opt in ('-L', '--lime-feats'):
                 self.limefeats = 0 if arg == 'all' else int(arg)
             elif opt in ('-m', '--map-file'):
@@ -165,6 +169,7 @@ class Options(object):
         print('        -q, --use-anchor           Use Anchor to compute an explanation')
         print('        -c, --use-categorical      Treat categorical features as categorical (with categorical features info if available)')
         print('        -l, --use-lime             Use LIME to compute an explanation')
+        print('        -w, --use-shap             Use SHAP to compute an explanation')
         print('        -L, --lime-feats           Instruct LIME to compute an explanation of this size')
         print('                                   Available values: [1, INT_MAX], all (default = 5)')
         print('        -m, --map-file=<string>    Path to a file containing a mapping to original feature values. (default: none)')

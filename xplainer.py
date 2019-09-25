@@ -5,6 +5,7 @@ from __future__ import print_function
 from data import Data
 from anchor_wrap import anchor_call
 from lime_wrap import lime_call
+from shap_wrap import shap_call
 from options import Options
 import os
 import sys
@@ -58,7 +59,7 @@ if __name__ == '__main__':
             xgb.encode(test_on=options.explain)
         if options.explain:
             if not xgb:
-                if options.uselime or options.useanchor:
+                if options.uselime or options.useanchor or options.useshap:
                     xgb = XGBooster(options, from_model=options.files[0])
                 else:
                     # abduction-based approach requires an encoding
@@ -70,7 +71,8 @@ if __name__ == '__main__':
             # explain using anchor or the abduction-based approach
             expl, expl_for_sampling = xgb.explain(options.explain,
                     use_lime=lime_call if options.uselime else None,
-                    use_anchor=anchor_call if options.useanchor else None)
+                    use_anchor=anchor_call if options.useanchor else None,
+                    use_shap=shap_call if options.useshap else None,)
 
             if options.yieldexp is not 'none':
                 print("\n\nExplainer output:")

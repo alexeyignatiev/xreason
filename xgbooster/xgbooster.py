@@ -242,7 +242,7 @@ class XGBooster(object):
 
         encoder.save_to(self.encfile)
 
-    def explain(self, sample, use_lime=False, use_anchor=False, expl_ext=None,
+    def explain(self, sample, use_lime=False, use_anchor=False, use_shap=False,  expl_ext=None,
             prefer_ext=False, nof_feats=5):
         """
             Explain a prediction made for a given sample with a previously
@@ -251,10 +251,13 @@ class XGBooster(object):
 
         if use_lime:
             expl, expl_for_sampling = use_lime(self, sample=sample, nb_samples=5,
-                            nb_features_in_exp=nof_feats)
+                            nb_features_in_exp=nof_feats)            
         elif use_anchor:
             expl, expl_for_sampling = use_anchor(self, sample=sample, nb_samples=5,
                             nb_features_in_exp=nof_feats, threshold=0.95)
+        if use_shap:
+            expl, expl_for_sampling = use_shap(self, sample=sample, nb_samples=5,
+                            nb_features_in_exp=nof_feats)            
         else:
             if 'x' not in dir(self):
                 self.x = SMTExplainer(self.enc, self.intvs, self.imaps,
