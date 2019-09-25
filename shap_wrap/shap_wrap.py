@@ -9,7 +9,7 @@ import shap
 import resource
 
 
-def shap_call(xgb, sample = None, nb_samples = 5, feats='all', nb_features_in_exp=5):
+def shap_call(xgb, sample = None):#, nb_samples = 5, feats='all', nb_features_in_exp=5):
     timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
             resource.getrusage(resource.RUSAGE_SELF).ru_utime
             
@@ -47,7 +47,9 @@ def shap_call(xgb, sample = None, nb_samples = 5, feats='all', nb_features_in_ex
         sum_values = []
         if (xgb.use_categorical):
             p = 0
+            #print(xgb.categorical_features)
             for f in xgb.categorical_features:
+                #print(xgb.categorical_names[f])
                 nb_values = len(xgb.categorical_names[f])
                 sum_v = 0
                 #print(nb_values)

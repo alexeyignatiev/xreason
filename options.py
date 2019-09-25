@@ -91,7 +91,7 @@ class Options(object):
             sys.stderr.write(str(err).capitalize())
             self.usage()
             sys.exit(1)
-        print(opts)
+        #print(opts)
         for opt, arg in opts:
             if opt in ('-a', '--accmin'):
                 self.accmin = float(arg)
