@@ -170,7 +170,7 @@ If you want to compute an explanation using LIME, execute the following command.
 $ xplainer.py -c -y 'basic'  -l -L 5 -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
 ```
 
-The prediction for this instance can be explained by Anchor like this:
+The prediction for this instance can be explained by SHAP like this:
 
 ```
 $  xplainer.py -c -y 'basic'  -w -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
