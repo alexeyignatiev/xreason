@@ -20,7 +20,7 @@ def shap_call(xgb, sample = None, nb_samples = 5, feats='all', nb_features_in_ex
         except:
             print("Cannot parse input sample:", sample)
             exit()
-        print("\n\n\n Starting SHAP explainer... \n Considering a sample with features:", feat_sample)
+        print("\n\n Starting SHAP explainer... \n Considering a sample with features:", feat_sample)
         if not (len(feat_sample) == len(xgb.X_train[0])):
             print("Unmatched features are not supported: The number of features in a sample {} is not equal to the number of features in this benchmark {}".format(len(feat_sample), len(xgb.X_train[0])))
             exit()

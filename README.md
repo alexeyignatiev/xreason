@@ -157,7 +157,7 @@ Also, see [a few example scripts](experiment) for details on how to validate heu
 
 ### Generated a heuristic explanation with a structured output
 
-Heuristic explanations can be computed using either parameter ```-q``` ```-l``` for a data instance specified with option ```-x 'comma,separated,values'```. 
+Heuristic explanations can be computed using either parameter ```-q``` ```-l```  ```-w```  for a data instance specified with option ```-x 'comma,separated,values'```. 
 In addition, we need a flag ```-y 'basic' ```.  For example, given an instance ```5,0,0,0,0,0,0,0,0,0,0``` and the trained model, the prediction for this instance can be explained by Anchor like this:
 
 ```
@@ -170,6 +170,11 @@ If you want to compute an explanation using LIME, execute the following command.
 $ xplainer.py -c -y 'basic'  -l -L 5 -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
 ```
 
+The prediction for this instance can be explained by Anchor like this:
+
+```
+$  xplainer.py -c -y 'basic'  -w -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
+```
 
 ## License
 
