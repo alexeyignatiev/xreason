@@ -13,7 +13,8 @@ def shap_call(xgb, sample = None):#, nb_samples = 5, feats='all', nb_features_in
     timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
             resource.getrusage(resource.RUSAGE_SELF).ru_utime
             
-    explainer = shap.TreeExplainer(xgb.model)
+   
+    
     if (sample is not None):
         try:
             feat_sample  = np.asarray(sample, dtype=np.float32)
@@ -31,13 +32,20 @@ def shap_call(xgb, sample = None):#, nb_samples = 5, feats='all', nb_features_in
         y_pred = xgb.model.predict(feat_sample_exp)[0]
         y_pred_prob = xgb.model.predict_proba(feat_sample_exp)[0]
         
-        X_train_clone = np.vstack((xgb.X_train, feat_sample))
-        transformed_train =  xgb.transform(X_train_clone)
+        # No need to pass dataset as it is recored in model
+        # https://shap.readthedocs.io/en/latest/
         
+        #X_train_clone = np.vstack((xgb.X_train, feat_sample))
+        #transformed_train =  xgb.transform(X_train_clone)
         
-        shap_values = explainer.shap_values(transformed_train)        
+        explainer = shap.TreeExplainer(xgb.model)
+        shap_values = explainer.shap_values(feat_sample_exp)
+        #print(explainer.expected_value)
+        #exit()
+        
         shap_values_sample = shap_values[-1]
-        transformed_sample = transformed_train[-1]
+        transformed_sample = feat_sample_exp[-1] #transformed_train[-1]
+
 
         
 
