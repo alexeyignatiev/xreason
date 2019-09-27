@@ -72,6 +72,7 @@ def shap_call(xgb, sample = None):#, nb_samples = 5, feats='all', nb_features_in
             sum_values = shap_values_sample
         expl_for_sampling = [{"base_value": explainer.expected_value, "sum_value": np.sum(sum_values)}]
         expl = []       
+        #print(model_output)
         for i in range(xgb.num_class):
             if (i !=  y_pred):
                 continue
