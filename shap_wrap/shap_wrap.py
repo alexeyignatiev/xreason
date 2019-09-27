@@ -70,7 +70,7 @@ def shap_call(xgb, sample = None):#, nb_samples = 5, feats='all', nb_features_in
             #print(sum_values)
         else:
             sum_values = shap_values_sample
-        expl_for_sampling = [{"base_value": explainer.expected_value, "predicted_value": np.sum(sum_values) + explainer.expected_value}]
+        expl_for_sampling = [{"base_value": explainer.expected_value, "predicted_value":np.sum(sum_values) + explainer.expected_value}]
         expl = []       
         #print(model_output)
         for i in range(xgb.num_class):
