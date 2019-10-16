@@ -68,7 +68,7 @@ class Options(object):
                                      'use-anchor=',
                                      'lime-feats=',
                                      'use-lime=',
-                                     'use-shap=',                                     
+                                     'use-shap=',
                                      'use-categorical=',
                                      'preprocess-categorical=',
                                      'pfiles=',
@@ -192,4 +192,4 @@ class Options(object):
         print('        -v, --verbose              Increase verbosity level')
         print('        -V, --validate             Validate explanation (show that it is too optimistic)')
         print('        -x, --explain              Explain a decision for a given comma-separated sample (default: none)')
-        print('        -y, --yieldexp            Explanation for a given comma-separated sample (default: none)')
+        print('        -y, --yieldexp             Explanation for a given comma-separated sample (default: none)')
