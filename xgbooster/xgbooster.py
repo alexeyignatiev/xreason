@@ -256,7 +256,7 @@ class XGBooster(object):
             expl, expl_for_sampling = use_anchor(self, sample=sample, nb_samples=5,
                             nb_features_in_exp=nof_feats, threshold=0.95)
         if use_shap:
-            expl, expl_for_sampling = use_shap(self, sample=sample)            
+            expl, expl_for_sampling = use_shap(self, sample=sample, nb_features_in_exp=nof_feats)            
         else:
             if 'x' not in dir(self):
                 self.x = SMTExplainer(self.enc, self.intvs, self.imaps,
