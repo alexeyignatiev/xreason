@@ -9,7 +9,7 @@ import shap
 import resource
 
 
-def shap_call(xgb, sample = None, feats='all', nb_features_in_exp=5):
+def shap_call(xgb, sample = None, feats='all', nb_features_in_exp = None):
     timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
             resource.getrusage(resource.RUSAGE_SELF).ru_utime
             
@@ -18,6 +18,9 @@ def shap_call(xgb, sample = None, feats='all', nb_features_in_exp=5):
         f2imap[f.strip()] = i 
     
     if (sample is not None):
+        if (nb_features_in_exp is None):
+            nb_features_in_exp = len(sample)
+
         try:
             feat_sample  = np.asarray(sample, dtype=np.float32)
         except:
@@ -86,10 +89,21 @@ def shap_call(xgb, sample = None, feats='all', nb_features_in_exp=5):
         print("\t \t Explanations for the winner class", y_pred, " (xgboost confidence = ", y_pred_prob[int(y_pred)], ")")
             
         print("base_value = {}, predicted_value = {}".format(explainer.expected_value, np.sum(sum_values) + explainer.expected_value))
-        for k, v in enumerate(sum_values):
+
+        abs_sum_values = np.abs(sum_values)
+        #print(abs_sum_values)
+        sorted_by_abs_sum_values =np.argsort(-abs_sum_values)
+        #print(sorted_by_abs_sum_values)
+
+        
+        for k1, v1 in enumerate(sorted_by_abs_sum_values):
+            
+            k = v1
+            v = sum_values[v1]
+            
             if (feats == 1 and v < 0) or (feats == -1 and v >= 0):
                 continue                      
-            expl.append(v)
+            #expl.append(v)
             #print(feat_sample[k])
             if (xgb.use_categorical):
                 expl_for_sampling.append(
@@ -99,13 +113,17 @@ def shap_call(xgb, sample = None, feats='all', nb_features_in_exp=5):
                     [{"id":k, "score": v, "name":"", "value": feat_sample[k],  "original_name": xgb.feature_names[k], "original_value": feat_sample[k]}])
             expl.append(f2imap[xgb.feature_names[k]])
             print("id = {}, name = {}, score = {}".format(f2imap[xgb.feature_names[k]], xgb.feature_names[k], v))
+            
+            #print(len(expl),nb_features_in_exp)
+            if (len(expl) ==  nb_features_in_exp):
+                break
 
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                 resource.getrusage(resource.RUSAGE_SELF).ru_utime - timer
         print('  time: {0:.2f}'.format(timer))
 
         #print(expl_for_sampling)
-        return sorted(expl), expl_for_sampling
+        return sorted(expl[:nb_features_in_exp]), expl_for_sampling
 
             
 # 
