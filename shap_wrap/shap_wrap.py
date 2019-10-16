@@ -82,8 +82,10 @@ def shap_call(xgb, sample = None, feats='all', nb_features_in_exp=5):
             feats = -1
         else:
             feats = 0
+
+        print("\t \t Explanations for the winner class", y_pred, " (xgboost confidence = ", y_pred_prob[int(y_pred)], ")")
             
-        #print(model_output)
+        print("base_value = {}, predicted_value = {}".format(explainer.expected_value, np.sum(sum_values) + explainer.expected_value))
         for k, v in enumerate(sum_values):
             if (feats == 1 and v < 0) or (feats == -1 and v >= 0):
                 continue                      
@@ -96,6 +98,7 @@ def shap_call(xgb, sample = None, feats='all', nb_features_in_exp=5):
                 expl_for_sampling.append(
                     [{"id":k, "score": v, "name":"", "value": feat_sample[k],  "original_name": xgb.feature_names[k], "original_value": feat_sample[k]}])
             expl.append(f2imap[xgb.feature_names[k]])
+            print("id = {}, name = {}, score = {}".format(f2imap[xgb.feature_names[k]], xgb.feature_names[k], v))
 
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                 resource.getrusage(resource.RUSAGE_SELF).ru_utime - timer
