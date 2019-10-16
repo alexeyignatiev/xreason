@@ -114,7 +114,7 @@ def shap_call(xgb, sample = None, feats='all', nb_features_in_exp = None):
             expl.append(f2imap[xgb.feature_names[k]])
             print("id = {}, name = {}, score = {}".format(f2imap[xgb.feature_names[k]], xgb.feature_names[k], v))
             
-            #print(len(expl),nb_features_in_exp)
+            print(len(expl),nb_features_in_exp)
             if (len(expl) ==  nb_features_in_exp):
                 break
 

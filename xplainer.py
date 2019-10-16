@@ -72,7 +72,7 @@ if __name__ == '__main__':
             expl, expl_for_sampling = xgb.explain(options.explain,
                     use_lime=lime_call if options.uselime else None,
                     use_anchor=anchor_call if options.useanchor else None,
-                    use_shap=shap_call if options.useshap else None,)
+                    use_shap=shap_call if options.useshap else None, nof_feats = options.limefeats)
 
             if options.yieldexp is not 'none':
                 print("\n\nExplainer output:")

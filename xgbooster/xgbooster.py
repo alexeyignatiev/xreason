@@ -248,7 +248,6 @@ class XGBooster(object):
             Explain a prediction made for a given sample with a previously
             trained tree ensemble.
         """
-
         if use_lime:
             expl, expl_for_sampling = use_lime(self, sample=sample, nb_samples=5,
                             nb_features_in_exp=nof_feats)            
