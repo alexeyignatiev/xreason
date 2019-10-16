@@ -9,11 +9,13 @@ import shap
 import resource
 
 
-def shap_call(xgb, sample = None):#, nb_samples = 5, feats='all', nb_features_in_exp=5):
+def shap_call(xgb, sample = None, feats='all', nb_features_in_exp=5):
     timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
             resource.getrusage(resource.RUSAGE_SELF).ru_utime
             
-   
+    f2imap = {}
+    for i, f in enumerate(xgb.feature_names):
+        f2imap[f.strip()] = i 
     
     if (sample is not None):
         try:
@@ -71,14 +73,20 @@ def shap_call(xgb, sample = None):#, nb_samples = 5, feats='all', nb_features_in
         else:
             sum_values = shap_values_sample
         expl_for_sampling = [{"base_value": explainer.expected_value, "predicted_value":np.sum(sum_values) + explainer.expected_value}]
-        expl = []       
-        #print(model_output)
-        for i in range(xgb.num_class):
-            if (i !=  y_pred):
-                continue
-            print("\t \t Explanations for the winner class", i, " (xgboost confidence = ", y_pred_prob[i], ")")
+        expl = []   
+        
+        # choose which features in the explanation to focus on
+        if feats in ('p', 'pos', '+'):
+            feats = 1
+        elif feats in ('n', 'neg', '-'):
+            feats = -1
+        else:
+            feats = 0
             
+        #print(model_output)
         for k, v in enumerate(sum_values):
+            if (feats == 1 and v < 0) or (feats == -1 and v >= 0):
+                continue                      
             expl.append(v)
             #print(feat_sample[k])
             if (xgb.use_categorical):
@@ -87,10 +95,12 @@ def shap_call(xgb, sample = None):#, nb_samples = 5, feats='all', nb_features_in
             else:
                 expl_for_sampling.append(
                     [{"id":k, "score": v, "name":"", "value": feat_sample[k],  "original_name": xgb.feature_names[k], "original_value": feat_sample[k]}])
+            expl.append(f2imap[xgb.feature_names[k]])
 
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                 resource.getrusage(resource.RUSAGE_SELF).ru_utime - timer
         print('  time: {0:.2f}'.format(timer))
+
         #print(expl_for_sampling)
         return sorted(expl), expl_for_sampling
 

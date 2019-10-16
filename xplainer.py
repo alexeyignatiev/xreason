@@ -80,6 +80,7 @@ if __name__ == '__main__':
                     print(v)
                 exit()
      
-            if (options.uselime or options.useanchor) and options.validate:
+            if (options.uselime or options.useanchor  or options.useshap) and options.validate:
+                print(expl)
                 xgb.validate(options.explain, expl)
 
