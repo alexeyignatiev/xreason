@@ -1,12 +1,24 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+##
+## options.py
+##
+##  Created on: Dec 7, 2018
+##      Author: Alexey Ignatiev, Nina Narodytska
+##      E-mail: aignatiev@ciencias.ulisboa.pt, narodytska@vmware.com
+##
 
+#
+#==============================================================================
 from __future__ import print_function
 import getopt
 import math
 import os
 import sys
 
+
+#
+#==============================================================================
 class Options(object):
     """
         Class for representing command-line options.
@@ -23,6 +35,7 @@ class Options(object):
         self.explain = ''
         self.useanchor = False
         self.uselime = False
+        self.useshap = False
         self.limefeats = 5
         self.validate = False
         self.use_categorical = False
@@ -58,7 +71,7 @@ class Options(object):
 
         try:
             opts, args = getopt.getopt(command[1:],
-                                    'a:ce:d:hL:lm:Mn:o:pr:qs:tvVx:',
+                                    'a:ce:d:hL:lm:Mn:o:pr:qs:tvVwx:',
                                     ['accmin=',
                                      'encode=',
                                      'help',
@@ -66,6 +79,7 @@ class Options(object):
                                      'use-anchor=',
                                      'lime-feats=',
                                      'use-lime=',
+                                     'use-shap=',
                                      'use-categorical=',
                                      'preprocess-categorical=',
                                      'pfiles=',
@@ -81,9 +95,9 @@ class Options(object):
                                      'train',
                                      'validate',
                                      'verbose',
-                                     'explain=',
+                                     'explain='
                                      ])
-        except err:
+        except getopt.GetoptError as err:
             sys.stderr.write(str(err).capitalize())
             self.usage()
             sys.exit(1)
@@ -91,15 +105,15 @@ class Options(object):
         for opt, arg in opts:
             if opt in ('-a', '--accmin'):
                 self.accmin = float(arg)
-            elif opt in ('-e', '--encode'):
-                self.encode = str(arg)
+            elif opt in ('-c', '--use-categorical'):
+                self.use_categorical = True
             elif opt in ('-d', '--maxdepth'):
                 self.maxdepth = int(arg)
+            elif opt in ('-e', '--encode'):
+                self.encode = str(arg)
             elif opt in ('-h', '--help'):
                 self.usage()
                 sys.exit(0)
-            elif opt in ('-q', '--use-anchor'):
-                self.useanchor = True
             elif opt in ('-l', '--use-lime'):
                 self.uselime = True
             elif opt in ('-L', '--lime-feats'):
@@ -112,6 +126,8 @@ class Options(object):
                 self.n_estimators = int(arg)
             elif opt in ('-o', '--output'):
                 self.output = str(arg)
+            elif opt in ('-q', '--use-anchor'):
+                self.useanchor = True
             elif opt in ('-r', '--rounds'):
                 self.num_boost_round = int(arg)
             elif opt == '--seed':
@@ -128,10 +144,10 @@ class Options(object):
                 self.validate = True
             elif opt in ('-v', '--verbose'):
                 self.verb += 1
+            elif opt in ('-w', '--use-shap'):
+                self.useshap = True
             elif opt in ('-x', '--explain'):
                 self.explain = str(arg)
-            elif opt in ('-c', '--use-categorical'):
-                self.use_categorical = True
             elif opt in ('-p', '--preprocess-categorical'):
                 self.preprocess_categorical = True
             elif opt in ('--pfiles'):
@@ -153,13 +169,12 @@ class Options(object):
         print('Options:')
         print('        -a, --accmin=<float>       Minimal accuracy')
         print('                                   Available values: [0.0, 1.0] (default = 0.95)')
-        print('        -e, --encode=<smt>         Encode a previously trained model')
-        print('                                   Available values: smt, smtbool, none (default = none)')
+        print('        -c, --use-categorical      Treat categorical features as categorical (with categorical features info if available)')
         print('        -d, --maxdepth=<int>       Maximal depth of a tree')
         print('                                   Available values: [1, INT_MAX] (default = 3)')
+        print('        -e, --encode=<smt>         Encode a previously trained model')
+        print('                                   Available values: smt, smtbool, none (default = none)')
         print('        -h, --help                 Show this message')
-        print('        -q, --use-anchor           Use Anchor to compute an explanation')
-        print('        -c, --use-categorical      Treat categorical features as categorical (with categorical features info if available)')
         print('        -l, --use-lime             Use LIME to compute an explanation')
         print('        -L, --lime-feats           Instruct LIME to compute an explanation of this size')
         print('                                   Available values: [1, INT_MAX], all (default = 5)')
@@ -170,6 +185,7 @@ class Options(object):
         print('        -o, --output=<string>      Directory where output files will be stored (default: \'temp\')')
         print('        -p,                        Preprocess categorical data')
         print('        --pfiles                   Filenames to use when preprocessing')
+        print('        -q, --use-anchor           Use Anchor to compute an explanation')
         print('        -r, --rounds=<int>         Number of training rounds')
         print('                                   Available values: [1, INT_MAX] (default = 10)')
         print('        --seed=<int>               Seed for random splitting')
@@ -177,9 +193,10 @@ class Options(object):
         print('        --sep=<string>             Field separator used in input file (default = \',\')')
         print('        -s, --solver=<string>      An SMT reasoner to use')
         print('                                   Available values: cvc4, mathsat, yices, z3 (default = z3)')
+        print('        -t, --train                Train a model of a given dataset')
         print('        --testsplit=<float>        Training and test sets split')
         print('                                   Available values: [0.0, 1.0] (default = 0.2)')
-        print('        -t, --train                Train a model of a given dataset')
         print('        -v, --verbose              Increase verbosity level')
         print('        -V, --validate             Validate explanation (show that it is too optimistic)')
-        print('        -x, --explain              Explain a decision for a given comma-separated sample (default: none)')
+        print('        -w, --use-shap             Use SHAP to compute an explanation')
+        print('        -x, --explain=<string>     Explain a decision for a given comma-separated sample (default: none)')

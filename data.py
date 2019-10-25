@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+##
+## data.py
+##
+##  Created on: Sep 20, 2017
+##      Author: Alexey Ignatiev, Nina Narodytska
+##      E-mail: aignatiev@ciencias.ulisboa.pt, narodytska@vmware.com
+##
 
+#
+#==============================================================================
 from __future__ import print_function
 import collections
 import itertools
@@ -9,6 +18,9 @@ import six
 from six.moves import range
 import numpy as np
 
+
+#
+#==============================================================================
 class Data(object):
     """
         Class for representing data (transactions).

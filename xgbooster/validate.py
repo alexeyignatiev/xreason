@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+##
+## validate.py
+##
+##  Created on: Jan 4, 2019
+##      Author: Alexey Ignatiev
+##      E-mail: aignatiev@ciencias.ulisboa.pt
+##
 
+#
+#==============================================================================
 from __future__ import print_function
 import getopt
 import numpy as np
@@ -14,6 +23,8 @@ from six.moves import range
 import sys
 
 
+#
+#==============================================================================
 class SMTValidator(object):
     """
         Validating Anchor's explanations using SMT solving.

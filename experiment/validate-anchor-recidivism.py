@@ -24,9 +24,8 @@ if __name__ == '__main__':
     # encode it and save the encoding to another file
     xgb.encode()
 
-    with open('../bench/anchor/recidivism/recidivism_data.csv', 'r') as fp:
+    with open('../bench/anchor/recidivism/recidivism.samples', 'r') as fp:
         lines = fp.readlines()
-        del(lines[0])
 
     # timers
     atimes = []
@@ -38,7 +37,7 @@ if __name__ == '__main__':
     errors = []
     reduced = 0
     for i, s in enumerate(lines):
-        options.explain = [float(v.strip()) for v in s.split(',')[:-1]]
+        options.explain = [float(v.strip()) for v in s.split(',')]
 
         if tuple(options.explain) in tested:
             continue

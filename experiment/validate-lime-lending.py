@@ -27,9 +27,8 @@ if __name__ == '__main__':
 
     xgb2 = copy.deepcopy(xgb)
 
-    with open('../bench/anchor/lending/lending_data.csv', 'r') as fp:
+    with open('../bench/anchor/lending/lending.samples', 'r') as fp:
         lines = fp.readlines()
-        del(lines[0])
 
     # timers
     ltimes = []
@@ -41,7 +40,7 @@ if __name__ == '__main__':
     errors = []
     reduced = 0
     for i, s in enumerate(lines):
-        options.explain = [float(v.strip()) for v in s.split(',')[:-1]]
+        options.explain = [float(v.strip()) for v in s.split(',')]
 
         if tuple(options.explain) in tested:
             continue
@@ -81,7 +80,7 @@ if __name__ == '__main__':
             print('incorrect')
             print('   ', coex)
 
-            # fixing explanation of anchor
+            # fixing explanation of lime
             timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                     resource.getrusage(resource.RUSAGE_SELF).ru_utime
 
@@ -99,7 +98,7 @@ if __name__ == '__main__':
             errors.append(0)
             print('correct')
 
-            # fixing explanation of anchor
+            # fixing explanation of lime
             timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                     resource.getrusage(resource.RUSAGE_SELF).ru_utime
 

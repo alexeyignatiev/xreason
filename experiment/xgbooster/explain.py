@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+##
+## explain.py
+##
+##  Created on: Dec 14, 2018
+##      Author: Alexey Ignatiev
+##      E-mail: aignatiev@ciencias.ulisboa.pt
+##
 
+#
+#==============================================================================
 from __future__ import print_function
 import numpy as np
 import os
@@ -14,6 +23,8 @@ from six.moves import range
 import sys
 
 
+#
+#==============================================================================
 class SMTExplainer(object):
     """
         An SMT-inspired minimal explanation extractor for XGBoost models.

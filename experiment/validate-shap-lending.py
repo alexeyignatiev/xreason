@@ -4,7 +4,7 @@
 from __future__ import print_function
 import copy
 from data import Data
-from lime_wrap import lime_call
+from shap_wrap import shap_call
 from options import Options
 import os
 import resource
@@ -20,18 +20,18 @@ if __name__ == '__main__':
     if sys.version_info.major == 2:
         sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
-    xgb = XGBooster(options, from_model='../temp/recidivism_data/recidivism_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl')
+    xgb = XGBooster(options, from_model='../temp/lending_data/lending_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl')
 
     # encode it and save the encoding to another file
     xgb.encode()
 
     xgb2 = copy.deepcopy(xgb)
 
-    with open('../bench/anchor/recidivism/recidivism.samples', 'r') as fp:
+    with open('../bench/anchor/lending/lending.samples', 'r') as fp:
         lines = fp.readlines()
 
     # timers
-    ltimes = []
+    stimes = []
     vtimes = []
     ftimes = []
     etimes = []
@@ -52,18 +52,18 @@ if __name__ == '__main__':
         # that an explanation of this size exists
         expl = xgb2.explain(options.explain)
 
-        # calling lime
+        # calling shap
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                 resource.getrusage(resource.RUSAGE_SELF).ru_utime
 
-        expl = xgb.explain(options.explain, use_lime=lime_call, nof_feats=len(expl))
+        expl = xgb.explain(options.explain, use_shap=shap_call, nof_feats=len(expl))
 
         print('expl1:', expl)
         print('szex1:', len(expl))
 
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                 resource.getrusage(resource.RUSAGE_SELF).ru_utime - timer
-        ltimes.append(timer)
+        stimes.append(timer)
 
         # validating explanation of lime
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             print('incorrect')
             print('   ', coex)
 
-            # fixing explanation of lime
+            # fixing explanation of shap
             timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                     resource.getrusage(resource.RUSAGE_SELF).ru_utime
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
             errors.append(0)
             print('correct')
 
-            # fixing explanation of lime
+            # fixing explanation of shap
             timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                     resource.getrusage(resource.RUSAGE_SELF).ru_utime
 
@@ -125,10 +125,10 @@ if __name__ == '__main__':
 
     # reporting the time spent
     print('')
-    print('tot atime: {0:.2f}'.format(sum(ltimes)))
-    print('max atime: {0:.2f}'.format(max(ltimes)))
-    print('min atime: {0:.2f}'.format(min(ltimes)))
-    print('avg atime: {0:.2f}'.format(sum(ltimes) / len(ltimes)))
+    print('tot atime: {0:.2f}'.format(sum(stimes)))
+    print('max atime: {0:.2f}'.format(max(stimes)))
+    print('min atime: {0:.2f}'.format(min(stimes)))
+    print('avg atime: {0:.2f}'.format(sum(stimes) / len(stimes)))
     print('')
     print('tot btime: {0:.2f}'.format(sum(vtimes)))
     print('max btime: {0:.2f}'.format(max(vtimes)))

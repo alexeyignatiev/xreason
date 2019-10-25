@@ -1,6 +1,15 @@
-"""
-CODE REUSES FROM SHAP
-"""
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+##
+## lime_wrap.py (reuses parts of the code of SHAP)
+##
+##  Created on: Dec 12, 2018
+##      Author: Nina Narodytska, Alexey Ignatiev
+##      E-mail: narodytska@vmware.com, aignatiev@ciencias.ulisboa.pt
+##
+
+#
+#==============================================================================
 import json
 import numpy as np
 import xgboost as xgb
@@ -10,6 +19,8 @@ import lime.lime_tabular
 import resource
 
 
+#
+#==============================================================================
 def lime_call(xgb, sample = None, nb_samples = 5, feats='all',
         nb_features_in_exp=5):
 
@@ -37,7 +48,7 @@ def lime_call(xgb, sample = None, nb_samples = 5, feats='all',
         except:
             print("Cannot parse input sample:", sample)
             exit()
-        print("Considering a sample with features:", feat_sample)
+        print("\n\n\n Starting LIME explainer... \n Considering a sample with features:", feat_sample)
         if not (len(feat_sample) == len(xgb.X_train[0])):
             print("Unmatched features are not supported: The number of features in a sample {} is not equal to the number of features in this benchmark {}".format(len(feat_sample), len(xgb.X_train[0])))
             exit()

@@ -1,13 +1,24 @@
-"""
-CODE REUSES FROM SHAP
-"""
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+##
+## tree.py (reuses parts of the code of SHAP)
+##
+##  Created on: Dec 7, 2018
+##      Author: Nina Narodytska
+##      E-mail: narodytska@vmware.com
+##
+
+#
+#==============================================================================
+from anytree import Node, RenderTree,AsciiStyle
 import json
 import numpy as np
 import xgboost as xgb
 import math
 
-from anytree import Node, RenderTree,AsciiStyle
 
+#
+#==============================================================================
 class xgnode(Node):
     def __init__(self, id, parent = None):
         Node.__init__(self, id, parent)
@@ -34,6 +45,8 @@ class xgnode(Node):
                 return (pref+ "{} \"{}\"<{}".format(self.id, self.name, self.threshold))
 
 
+#
+#==============================================================================
 def build_tree(json_tree, node = None, feature_names = None, inverse = False):
     def max_id(node):
         if "children" in node:
@@ -68,6 +81,9 @@ def build_tree(json_tree, node = None, feature_names = None, inverse = False):
     root = extract_data(json_tree, None, feature_names)
     return root
 
+
+#
+#==============================================================================
 def walk_tree(node):
     if (len(node.children) == 0):
         # leaf
@@ -78,6 +94,8 @@ def walk_tree(node):
         walk_tree(node.children[1])
 
 
+#
+#==============================================================================
 def scores_tree(node, sample):
     if (len(node.children) == 0):
         # leaf
@@ -91,6 +109,9 @@ def scores_tree(node, sample):
         else:
             return scores_tree(node.children[1], sample)
 
+
+#
+#==============================================================================
 class TreeEnsemble:
     """ An ensemble of decision trees.
 
@@ -153,6 +174,9 @@ class TreeEnsemble:
             prob.append(class_scores/class_scores.sum())
         return np.asarray(prob).reshape((-1, nb_classes))
 
+
+#
+#==============================================================================
 def get_xgboost_json(model):
     """ REUSED FROM SHAP
         This gets a JSON dump of an XGBoost model while ensuring the feature names are their indexes.

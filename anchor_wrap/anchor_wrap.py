@@ -1,6 +1,15 @@
-"""
-CODE REUSES FROM SHAP
-"""
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+##
+## anchor_wrap.py (reuses parts of the code of SHAP)
+##
+##  Created on: Jan 6, 2019
+##      Author: Nina Narodytska, Alexey Ignatiev
+##      E-mail: narodytska@vmware.com, aignatiev@ciencias.ulisboa.pt
+##
+
+#
+#==============================================================================
 from __future__ import print_function
 import json
 import numpy as np
@@ -13,6 +22,8 @@ import sklearn
 import sklearn.ensemble
 
 
+#
+#==============================================================================
 def anchor_call(xgb, sample=None, nb_samples=5, feats='all',
         nb_features_in_exp=5, threshold=0.95):
 
@@ -39,10 +50,10 @@ def anchor_call(xgb, sample=None, nb_samples=5, feats='all',
     if (sample is not None):
         try:
             feat_sample = np.asarray(sample, dtype=np.float32)
-        except:
-            print("Cannot parse input sample:", sample)
+        except Exception as inst:
+            print("Cannot parse input sample:", sample, inst)
             exit()
-        print("Considering a sample with features:", feat_sample)
+        print("\n\n\n Starting Anchor explainer... \nConsidering a sample with features:", feat_sample)
         if not (len(feat_sample) == len(xgb.X_train[0])):
             print("Unmatched features are not supported: The number of features in a sample {} is not equal to the number of features in this benchmark {}".format(len(feat_sample), len(xgb.X_train[0])))
             exit()
@@ -74,6 +85,9 @@ def anchor_call(xgb, sample=None, nb_samples=5, feats='all',
                 print("Clause ", k, end=": ")
                 print("feature (", v,  ",",  explainer.feature_names[v], end="); ")
                 print("value (", feat_sample[v],  ",",  explainer.categorical_names[v][int(feat_sample[v])] , ")")
+        else:
+            print("We only support datasets with categorical features for Anchor. Please pre-process your data.")
+            exit()
 
         timer = resource.getrusage(resource.RUSAGE_CHILDREN).ru_utime + \
                 resource.getrusage(resource.RUSAGE_SELF).ru_utime - timer

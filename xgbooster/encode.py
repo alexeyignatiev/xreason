@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
+##
+## encode.py
+##
+##  Created on: Dec 7, 2018
+##      Author: Alexey Ignatiev
+##      E-mail: aignatiev@ciencias.ulisboa.pt
+##
 
+#
+#==============================================================================
 from __future__ import print_function
 import collections
 from pysat.formula import IDPool
@@ -17,6 +26,8 @@ except ImportError:  # for Python3
     from io import StringIO
 
 
+#
+#==============================================================================
 class SMTEncoder(object):
     """
         Encoder of XGBoost tree ensembles into SMT.

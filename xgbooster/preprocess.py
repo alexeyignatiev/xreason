@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+##
+## preprocess.py
+##
+##  Created on: Jan 10, 2019
+##      Author: Nina Narodytska
+##      E-mail: narodytska@vmware.com
+##
+
+#
+#==============================================================================
 import json
 import numpy as np
 import xgboost as xgb
@@ -7,6 +19,9 @@ import numpy as np
 import sklearn
 import pickle
 
+
+#
+#==============================================================================
 def preprocess_dataset(raw_data_path, files):
     print("preprocess dataset from ", raw_data_path)
     files = files.split(",")

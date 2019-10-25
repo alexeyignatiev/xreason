@@ -14,6 +14,7 @@ Before using XPlainer, make sure you have the following Python packages installe
 * [pySMT](https://github.com/pysmt/pysmt)
 * [PySAT](https://github.com/pysathq/pysat)
 * [scikit-learn](https://scikit-learn.org/stable/)
+* [SHAP](https://github.com/slundberg/shap)
 * [XGBoost](https://github.com/dmlc/xgboost/)
 
 Please, follow the installation instructions on these projects' websites to install them properly. (If you spot any other package dependency not listed here, please, let us know.)
@@ -74,6 +75,14 @@ If you want to compute an explanation using LIME, execute the following command.
 ```
 $ xplainer.py -c -l -L 5 -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
 ```
+
+The prediction for this instance can be explained by SHAP like this:
+
+```
+$  xplainer.py -c -w -L 5 -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
+```
+
+Note that XPlainer can also restrict explanations of SHAP to be of a given size (see option ```-L```), which is *not done* by default.
 
 ### Computing a global explanation
 
@@ -153,6 +162,18 @@ if __name__ == '__main__':
 ```
 
 Also, see [a few example scripts](experiment) for details on how to validate heuristic explanations for every unique sample of the benchmark datasets (note that each of the datasets must be properly processed and the corresponding models must be trained in advance).
+
+## Reproducing experimental results
+
+Although it seems unlikely that the experimental results reported in the paper can be reproduced (due to *randomization* used in the training phase), similar results can be obtained if the following commands are executed:
+
+```
+$ cd experiment/
+$ ./train-all.sh && ./extract-samples.sh
+$ ./validate-all.sh
+```
+
+The final command should run the experiment the way it was set up for the paper. (**Note** that this will take a while.) The result files will contain the necessary statistics.
 
 ## License
 
