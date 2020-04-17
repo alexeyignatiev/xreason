@@ -35,12 +35,12 @@ def anchor_call(xgb, sample=None, nb_samples=5, feats='all',
     explainer = anchor_tabular.AnchorTabularExplainer(
                                                      class_names=xgb.target_name,
                                                      feature_names=xgb.feature_names,
-                                                     data=xgb.X,
+                                                     train_data=xgb.X,
                                                      categorical_names=xgb.categorical_names if xgb.use_categorical else {})
-    if (len(xgb.X_test) != 0):
-        explainer.fit(xgb.X_train, xgb.Y_train, xgb.X_test, xgb.Y_test)
-    else:
-        explainer.fit(xgb.X_train, xgb.Y_train, xgb.X_train, xgb.Y_train)
+    # if (len(xgb.X_test) != 0):
+    #     explainer.fit(xgb.X_train, xgb.Y_train, xgb.X_test, xgb.Y_test)
+    # else:
+    #     explainer.fit(xgb.X_train, xgb.Y_train, xgb.X_train, xgb.Y_train)
     predict_fn_xgb = lambda x: xgb.model.predict(xgb.transform(x)).astype(int)
 
     f2imap = {}
@@ -64,12 +64,13 @@ def anchor_call(xgb, sample=None, nb_samples=5, feats='all',
         y_pred = xgb.model.predict(feat_sample_exp)[0]
         y_pred_prob = xgb.model.predict_proba(feat_sample_exp)[0]
         #hack testiing that we use the same onehot encoding
-        test_feat_sample_exp = explainer.encoder.transform(feat_sample_exp)
+        # test_feat_sample_exp = explainer.encoder.transform(feat_sample_exp)
         test_y_pred = xgb.model.predict(feat_sample_exp)[0]
         test_y_pred_prob = xgb.model.predict_proba(feat_sample_exp)[0]
         assert(np.allclose(y_pred_prob, test_y_pred_prob))
         print('Prediction: ', explainer.class_names[predict_fn_xgb(feat_sample.reshape(1, -1))[0]])
-        exp = explainer.explain_instance(feat_sample, xgb.model.predict, threshold=threshold)
+        # exp = explainer.explain_instance(feat_sample, xgb.model.predict, threshold=threshold)
+        exp = explainer.explain_instance(feat_sample, predict_fn_xgb, threshold=threshold)
         print('Anchor: %s' % (' AND '.join(exp.names())))
         print('Precision: %.2f' % exp.precision())
         print('Coverage: %.2f' % exp.coverage())
