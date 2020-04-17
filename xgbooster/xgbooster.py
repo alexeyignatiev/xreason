@@ -306,6 +306,7 @@ class XGBooster(object):
             assert(self.encoder != [])
             tx = []
             for i in range(self.nb_features):
+                self.encoder[i].drop = None
                 if (i in self.categorical_features):
                     tx_aux = self.encoder[i].transform(x[:,[i]])
                     tx_aux = np.vstack(tx_aux)
