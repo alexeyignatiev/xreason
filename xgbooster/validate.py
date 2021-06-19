@@ -5,7 +5,7 @@
 ##
 ##  Created on: Jan 4, 2019
 ##      Author: Alexey Ignatiev
-##      E-mail: aignatiev@ciencias.ulisboa.pt
+##      E-mail: alexey.ignatiev@monash.edu
 ##
 
 #

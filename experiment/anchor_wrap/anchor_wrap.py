@@ -5,7 +5,7 @@
 ##
 ##  Created on: Jan 6, 2019
 ##      Author: Nina Narodytska, Alexey Ignatiev
-##      E-mail: narodytska@vmware.com, aignatiev@ciencias.ulisboa.pt
+##      E-mail: narodytska@vmware.com, alexey.ignatiev@monash.edu
 ##
 
 #

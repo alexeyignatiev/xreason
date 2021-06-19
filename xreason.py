@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 ##
-## xplainer.py
+## xreason.py
 ##
 ##  Created on: Dec 7, 2018
 ##      Author: Alexey Ignatiev, Nina Narodytska
-##      E-mail: aignatiev@ciencias.ulisboa.pt, narodytska@vmware.com
+##      E-mail: alexey.ignatiev@monash.edu, narodytska@vmware.com
 ##
 
 #
@@ -28,9 +28,9 @@ def show_info():
         Print info message.
     """
 
-    print('c XPlainer: explaining XGBoost models')
-    print('c author(s): Alexey Ignatiev    [email:aignatiev@ciencias.ulisboa.pt]')
-    print('c            Joao Marques-Silva [email:joao.marques-silva@univ-toulouse.fr]')
+    print('c XReason: reasoning about explanations')
+    print('c author(s): Alexey Ignatiev    [email:alexey.ignatiev@monash.edu]')
+    print('c            Joao Marques-Silva [email:joao.marques-silva@irit.fr]')
     print('c            Nina Narodytska    [email:narodytska@vmware.com]')
     print('')
 
