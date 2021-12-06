@@ -222,7 +222,7 @@ Note that, for our experiments we used  the most recent version of Anchor (versi
 
 ### Models used in the AAAI'22 paper
 
-Note that all datasets and the corresponding models are additionally provided in [bench](./bench) and [models](./models), respectively. Use may want to opt to use our original models instead of training your own from scratch (see step 2 above). In order to do so, replace step 2 above with the following:
+Note that all datasets and the corresponding models are additionally provided in [bench](aaai22/bench) and [models](aaai22/models), respectively. Use may want to opt to use our original models instead of training your own from scratch (see step 2 above). In order to do so, replace step 2 above with the following:
 
 ```
 $ rm -r src/temp
