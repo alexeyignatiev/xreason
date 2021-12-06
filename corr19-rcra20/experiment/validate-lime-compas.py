@@ -20,7 +20,7 @@ if __name__ == '__main__':
     if sys.version_info.major == 2:
         sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
 
-    xgb = XGBooster(options, from_model='../temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl')
+    xgb = XGBooster(options, from_model='temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl')
 
     # encode it and save the encoding to another file
     xgb.encode()

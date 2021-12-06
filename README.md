@@ -1,27 +1,34 @@
 # XReason (former XPlainer)
 
-A set of Python scripts for reasoning about explanations of machine learning models. Concretely, the implementation targets tree ensembles trained with [XGBoost](https://xgboost.ai/) and supports computing subset- and cardinality-minimal *rigorous* explanations using on the [abduction-based approach](https://arxiv.org/abs/1811.10656) proposed recently.
+## (extended to support the MaxSAT-based approach)
+
+This repository contains the tool accompanying a recent AAAI'22 paper on *"Using MaxSAT for Efficient Explanations of Tree Ensembles"*. This version of the `XReason` tool builds on the [earlier original](https://github.com/alexeyignatiev/xreason/corr19-rcra20/experiment/), which aims at reasoning about explanations for machine learning models. The original implementation makes use of the SMT encoding and so an SMT-based explainer. This work extends `XReason` to support the MaxSAT-based explanation extraction approach proposed in the AAAI'22 paper.
+
+Concretely, the modification includes several additional files as well as a few modified original modules, aiming at adding support for a novel MaxSAT-based explainer of boosted tree models. For instance, the encoder now has a class producing a MaxSAT encoding proposed in the paper while the explainer contains the necessary procedures for invoking an incremental MaxSAT-based entailment oracle. The newly added files include `erc2.py`, which extends the RC2 MaxSAT solver with the necessary incrementality capabilities, and `mxreason.py`, which instruments the calls to ERC2.
+
+Note that the original capabilities of `XReason` to reason about heuristic explanations should still be functional.
 
 ## Getting Started
 
-Before using XReason, make sure you have the following Python packages installed:
+The following packages are necessary to run XReason:
 
-* [Anchor](https://github.com/marcotcr/anchor)
+* [Anchor](https://github.com/marcotcr/anchor) (version [0.0.2.0](https://pypi.org/project/anchor-exp/0.0.2.0/))
 * [anytree](https://anytree.readthedocs.io/)
 * [LIME](https://github.com/marcotcr/lime)
+* [namedlist](https://gitlab.com/ericvsmith/namedlist)
 * [numpy](http://www.numpy.org/)
 * [pandas](https://pandas.pydata.org/)
-* [pySMT](https://github.com/pysmt/pysmt)
+* [pySMT](https://github.com/pysmt/pysmt) (with Z3 installed)
 * [PySAT](https://github.com/pysathq/pysat)
 * [scikit-learn](https://scikit-learn.org/stable/)
 * [SHAP](https://github.com/slundberg/shap)
-* [XGBoost](https://github.com/dmlc/xgboost/)
+* [XGBoost](https://github.com/dmlc/xgboost/) (version [1.2.1](https://pypi.org/project/xgboost/1.2.1/))
 
-Please, follow the installation instructions on these projects' websites to install them properly. (If you spot any other package dependency not listed here, please, let us know.)
+**Important:** If you are using a MacOS system, please make sure you use `libomp` (OpenMP) version 11. Later versions are affected by [this bug](https://github.com/dmlc/xgboost/issues/7039).
 
 ## Usage
 
-XReason has a number of parameters, which can be set from the command line. To see the list of options, run:
+XReason has a number of parameters, which can be set from the command line. To see the list of options, run (the executable script is located in [src](./src)):
 
 ```
 $ xreason.py -h
@@ -29,7 +36,9 @@ $ xreason.py -h
 
 ### Preparing a dataset
 
-XReason can be used with datasets in the CSV format. If a dataset contains continuous data, you can use XReason straight away (with no option ```-c``` specified). Otherwise, you need to process the categorical features of the dataset. For this, you need to do a few steps:
+**Important:** if a dataset contains continuous data, you can omit this stage and use XReason straight away (with no option ```-c``` specified). Otherwise, read this part.
+
+XReason can be used with datasets in the CSV format. Otherwise, you need to process the categorical features of the dataset. For this, you need to do a few steps:
 
 1. Assume your dataset is stored in file ```somepath/dataset.csv```.
 2. Create another file named ```somepath/dataset.csv.catcol``` that contains the indices of the categorical columns of ```somepath/dataset.csv```. For instance, if columns ```0```, ```1```, and ```5``` contain categorical data, the file should contain the lines
@@ -49,7 +58,7 @@ $ xreason.py -p --pfiles dataset.csv,somename somepath/
 creates a new file ```somepath/somename_data.csv``` with the categorical features properly handled. As an example, you may want to check the command on the [benchmark datasets](bench), e.g.
 
 ```
-$ xreason.py -p --pfiles compas.csv,compas bench/fairml/compas/
+$ xreason.py -p --pfiles compas.csv,compas ../corr19-rcra20/bench/fairml/compas/
 ```
 
 ### Training a tree ensemble
@@ -60,7 +69,7 @@ Before extracting explanations, an XGBoost model must be trained:
 $ xreason.py -c -t -n 50 bench/fairml/compas/compas_data.csv
 ```
 
-Here, 50 trees per class are trained. Also, parameter ```-c``` is used because the data is categorical. By default, the trained model is saved in the file ```temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl```.
+Here, 50 trees per class are trained. Also, parameter ```-c``` is used because the data is categorical. We **emphasize** that parameter ```-c``` should not be used for continuous data, which is the case in the experimental results we obtained in the paper. By default, the trained model is saved in the file ```temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl```.
 
 ### Computing a heuristic explanation
 
@@ -84,7 +93,8 @@ $  xreason.py -c -w -L 5 -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data
 
 Note that XReason can also restrict explanations of SHAP to be of a given size (see option ```-L```), which is *not done* by default.
 
-### Computing a rigorous explanation
+
+### Computing a formal SMT-based explanation
 
 A rigorous logic-based explanation for the same data instance can be computed by running the following command:
 
@@ -92,12 +102,28 @@ A rigorous logic-based explanation for the same data instance can be computed by
 $ xreason.py -c -e smt -s z3 -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
 ```
 
-Here, parameter ```-e``` specifies the model encoding (SMT) while parameter ```-s``` identifies an SMT solver to use (various SMT solvers can be installed in [pySMT](https://github.com/pysmt/pysmt) - here we use [Z3](https://github.com/Z3Prover/z3)). This command computes a *subset-minimal* explanation, i.e. it is guaranteed that *no proper subset* of the reported explanation can serve as an explanation for the given prediction.
+Here, parameter ```-e``` specifies the model encoding (SMT) while parameter ```-s``` identifies an SMT solver to use (various SMT solvers can be installed in [pySMT](https://github.com/pysmt/pysmt) - here we use [Z3](https://github.com/Z3Prover/z3)). This command computes a *subset-minimal* explanation, i.e. it is guaranteed that *no proper subset* of the reported explanation can serve as an explanation for the given prediction. Once again, parameter ```-c``` **should be ommited** in the case of continuous data.
 
 Alternatively, a *cardinality-minimal* (i.e. smallest size) explanation can be computed by specifying the ```-M``` option additionally:
 
 ```
 $ xreason.py -c -e smt -M -s z3 -x '5,0,0,0,0,0,0,0,0,0,0' temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
+```
+
+### Computing a formal MaxSAT-based explanation
+
+Abductive explanations with the use of MaxSAT can be computed in the following way:
+
+```
+$ xreason.py -c -X abd -R lin -e mx -s g3 -x '5,0,0,0,0,0,0,0,0,0,0' -vv temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
+```
+
+Here, parameter ```-e``` serves to specify the MaxSAT encoding while parameter ```-s``` identifies an underlying SAT solver to use ([PySAT](https://pysathq.github.io/) supports various SAT solvers - here we use Glucose 3). Just like with the case of SMT, this command computes a *subset-minimal* abductive explanation. Parameter `-R` specifies how explanations should be reduced. Iin this case, linear search is used. For QuickXPlain, use `-R qxp`. Once again, parameter ```-c``` **should be ommited** in the case of continuous data.
+
+Alternatively, a *cardinality-minimal* (i.e. smallest size) abductive explanation can be computed by specifying the ```-M``` option additionally:
+
+```
+$ xreason.py -c -X abd -M -e mx -s g3 -x '5,0,0,0,0,0,0,0,0,0,0' -vv temp/compas_data/compas_data_nbestim_50_maxdepth_3_testsplit_0.2.mod.pkl
 ```
 
 ### Validating heuristic explanations
@@ -161,14 +187,58 @@ if __name__ == '__main__':
             print('rigorous expl (refined):', rexpl)
 ```
 
-Also, see [a few example scripts](experiment) for details on how to validate heuristic explanations for every unique sample of the benchmark datasets (note that each of the datasets must be properly processed and the corresponding models must be trained in advance).
+Also, see [a few example scripts](corr19-rcra20/experiment) for details on how to validate heuristic explanations for every unique sample of the benchmark datasets (note that each of the datasets must be properly processed and the corresponding models must be trained in advance).
 
-## Reproducing experimental results
+## Reproducing experimental results of the AAAI'22 paper
 
-Although it seems unlikely that the experimental results reported in the paper can be reproduced (due to *randomization* used in the training phase), similar results can be obtained if the following commands are executed:
+We have carefully prepared the experimental setup so that anyone interested could reproduce our results reported in the paper. To be able to do so, the following steps should be done:
+
+1. Go to the `src` directory:
 
 ```
-$ cd experiment/
+$ cd src/
+```
+
+2. Train all the 21 models at once:
+
+```
+$ ./aaai22-train-all.py -d none
+```
+
+3. Given the trained models, run the experimentation script:
+
+```
+$ ./aaai22-experiment.py -i 200 -d none
+```
+
+As indicated above, the final command will run the experiment the way it is set up for the paper. (**Note** that this will take a while.) The script invokes `XReason ` with all the necessary parameters set. It traverses the 21 trained models and then randomly picks at most 200 data instances (the random seed is fixed to ensure reproducibility) and invokes (1) the SMT-based explainer followed by (2) the MaxSAT-based explainer. While doing so, it collects the necessary data including explanation size, running time, memory used, et cetera. All the results will be saved in the `results` directory.
+
+### On additional experiments with Anchor for AAAI'22
+
+As one of the reviewers requested *additional* experimental results on comparing our approach against a model-agnostic explainer, we performed an additional experimental setup for doing so. We provide a Notebook script "aaai22_exp_anchor.ipynb" used to run these additional experiments for Anchor.
+
+Note that, for our experiments we used  the most recent version of Anchor (version [0.0.2.0](https://pypi.org/project/anchor-exp/0.0.2.0/)).
+
+
+### Models used in the AAAI'22 paper
+
+Note that all datasets and the corresponding models are additionally provided in [bench](./bench) and [models](./models), respectively. Use may want to opt to use our original models instead of training your own from scratch (see step 2 above). In order to do so, replace step 2 above with the following:
+
+```
+$ rm -r src/temp
+$ cp -r aaai22/models src/temp
+```
+
+### Logs of the AAAI'22 experiments and results
+
+All the logs we obtained in our experiments can be found in the [logs](aaai22/logs) directory. The full table of results can be found in [tables](aaai22/tables).
+
+## Reproducing experimental results of CoRR'19-RCRA'20
+
+Although it seems unlikely that the experimental results reported in the RCRA'20 paper can be reproduced (due to *randomization* used in the training phase), similar results can be obtained if the following commands are executed:
+
+```
+$ cd corr19-rcra20/experiment/
 $ ./train-all.sh && ./extract-samples.sh
 $ ./validate-all.sh
 ```
