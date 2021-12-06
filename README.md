@@ -245,6 +245,41 @@ $ ./validate-all.sh
 
 The final command should run the experiment the way it was set up for the paper. (**Note** that this will take a while.) The result files will contain the necessary statistics.
 
+## Citations
+
+If `XReason` has been significant to a project that leads to an academic publication, please, acknowledge that fact by citing it:
+
+```
+@article{inms-corr19,
+  author    = {Alexey Ignatiev and
+               Nina Narodytska and
+               Joao Marques{-}Silva},
+  title     = {On Validating, Repairing and Refining Heuristic {ML} Explanations},
+  journal   = {CoRR},
+  volume    = {abs/1907.02509},
+  year      = {2019}
+}
+
+@inproceedings{inms-rcra20,
+  author    = {Alexey Ignatiev and
+               Nina Narodytska and
+               Joao Marques{-}Silva},
+  title     = {On Formal Reasoning about Explanations},
+  booktitle = {RCRA},
+  year      = {2020},
+}
+
+@inproceedings{iisms-aaai22a,
+  author    = {Alexey Ignatiev and
+               Yacine Izza and
+               Peter J. Stuckey and
+               Joao Marques-Silva},
+  title     = {Using MaxSAT for Efficient Explanations of Tree Ensembles},
+  booktitle = {AAAI},
+  year      = {2022},
+}
+```
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
