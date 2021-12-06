@@ -12,8 +12,8 @@
 #==============================================================================
 from __future__ import print_function
 from .validate import SMTValidator
-from .encode import SMTEncoder
-from .explain import SMTExplainer
+from .encode import SMTEncoder, MXEncoder
+from .explain import SMTExplainer, MXExplainer
 import numpy as np
 import os
 import resource
@@ -122,13 +122,20 @@ class XGBooster(object):
             # load model
 
         elif from_encoding:
+            self.use_categorical = self.options.use_categorical
             fname = from_encoding
 
             # encoding, feature names, and number of classes
             # are read from an input file
-            enc = SMTEncoder(None, None, None, self, from_encoding)
-            self.enc, self.intvs, self.imaps, self.ivars, self.feature_names, \
-                    self.num_class = enc.access()
+            if fname.endswith('.cnf'):
+                enc = MXEncoder(None, [], None, self, from_encoding)
+                self.enc, self.intvs, self.imaps, self.ivars, self.feature_names, \
+                        self.num_class = enc.access()
+                self.mxe = enc
+            else:
+                enc = SMTEncoder(None, None, None, self, from_encoding)
+                self.enc, self.intvs, self.imaps, self.ivars, self.feature_names, \
+                        self.num_class = enc.access()
 
         # create extra file names
         try:
@@ -138,7 +145,7 @@ class XGBooster(object):
 
         self.mapping_features()
         #################
-        self.test_encoding_transformes()
+        #self.test_encoding_transformes()
 
         bench_name = os.path.splitext(os.path.basename(options.files[0]))[0]
         bench_dir_name = options.output + "/" + bench_name
@@ -244,7 +251,11 @@ class XGBooster(object):
             Encode a tree ensemble trained previously.
         """
 
-        encoder = SMTEncoder(self.model, self.feature_names, self.num_class, self)
+        if self.options.encode in ('mx', 'mxe', 'maxsat', 'mxint', 'mxa'):
+            encoder = MXEncoder(self.model, self.feature_names, self.num_class, self)
+            self.mxe = encoder
+        else:  # smt or smtbool
+            encoder = SMTEncoder(self.model, self.feature_names, self.num_class, self)
         self.enc, self.intvs, self.imaps, self.ivars = encoder.encode()
 
         if test_on:
@@ -269,9 +280,14 @@ class XGBooster(object):
             expl = use_shap(self, sample=sample, nb_features_in_exp=nof_feats)
         else:
             if 'x' not in dir(self):
-                self.x = SMTExplainer(self.enc, self.intvs, self.imaps,
-                        self.ivars, self.feature_names, self.num_class,
-                        self.options, self)
+                if self.options.encode in ('mx', 'mxe', 'maxsat', 'mxint', 'mxa'):
+                    self.x = MXExplainer(self.enc, self.intvs, self.imaps,
+                            self.ivars, self.feature_names, self.num_class,
+                            self.options, self)
+                else:
+                    self.x = SMTExplainer(self.enc, self.intvs, self.imaps,
+                            self.ivars, self.feature_names, self.num_class,
+                            self.options, self)
 
             expl = self.x.explain(np.array(sample), self.options.smallest,
                     expl_ext, prefer_ext)
@@ -403,7 +419,7 @@ class XGBooster(object):
         print("Readable sample", self.readable_sample(inv_X[0]))
         assert((inv_X == X).all())
 
-        if (self.options.verb > 1):
+        if (self.options.verb > 3):
             for i in range(len(self.extended_feature_names)):
                 print(i, self.transform_inverse_by_index(i))
             for key, value in self.extended_feature_names.items():
