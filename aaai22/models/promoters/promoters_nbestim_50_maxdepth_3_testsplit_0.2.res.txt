@@ -1,0 +1,2 @@
+promoters.csv & 1.0 & 1.0 &50  &3 & 0.2 \\ 
+ \hline 

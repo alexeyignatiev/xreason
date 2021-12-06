@@ -1,0 +1,2 @@
+wine-recognition.csv & 1.0 & 0.97 &50  &3 & 0.2 \\ 
+ \hline 

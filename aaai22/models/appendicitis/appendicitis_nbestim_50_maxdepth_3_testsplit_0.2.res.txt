@@ -1,0 +1,2 @@
+appendicitis.csv & 0.99 & 0.91 &50  &3 & 0.2 \\ 
+ \hline 

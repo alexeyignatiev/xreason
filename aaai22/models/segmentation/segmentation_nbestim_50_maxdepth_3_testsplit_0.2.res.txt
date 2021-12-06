@@ -1,0 +1,2 @@
+segmentation-data.csv & 1.0 & 0.95 &50  &3 & 0.2 \\ 
+ \hline 

@@ -1,0 +1,2 @@
+biodegradation.csv & 0.97 & 0.87 &50  &3 & 0.2 \\ 
+ \hline 
