@@ -22,7 +22,7 @@ The following packages are necessary to run XReason:
 * [PySAT](https://github.com/pysathq/pysat)
 * [scikit-learn](https://scikit-learn.org/stable/)
 * [SHAP](https://github.com/slundberg/shap)
-* [XGBoost](https://github.com/dmlc/xgboost/) (version [1.2.1](https://pypi.org/project/xgboost/1.2.1/))
+* [XGBoost](https://github.com/dmlc/xgboost/) (version [1.7.5](https://pypi.org/project/xgboost/1.7.5/))
 
 **Important:** If you are using a MacOS system, please make sure you use `libomp` (OpenMP) version 11. Later versions are affected by [this bug](https://github.com/dmlc/xgboost/issues/7039).
 
