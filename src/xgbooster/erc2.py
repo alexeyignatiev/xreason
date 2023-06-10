@@ -13,6 +13,7 @@
 from __future__ import print_function
 import collections
 from copy import deepcopy
+from dataclasses import dataclass
 import functools
 import itertools
 from math import ceil, copysign
@@ -20,11 +21,23 @@ import namedlist
 from pysat.examples.rc2 import RC2, RC2Stratified
 from pysat.formula import IDPool
 from pysat.solvers import Solver
+import sys
 
 
 # a named tuple for storing the information associated with a core
 #==============================================================================
-CoreInfo = namedlist.namedlist('CoreInfo', ['tobj', 'tbnd', 'sz', 'lits', 'reasons'])
+assert sys.version_info.major >= 3, 'Python 2 is not supported'
+if sys.version_info.major == 3 and sys.version_info.minor < 10:
+    CoreInfo = namedlist.namedlist('CoreInfo', ['tobj', 'tbnd', 'sz', 'lits', 'reasons'])
+else:  # namedlist does not work with Python >= 3.10
+    @dataclass
+    class CoreInfo:
+        """ Dataclass for storing the information associated with a core. """
+        tobj: dict
+        tbnd: dict
+        sz: int
+        lits: 'typing.Any'
+        reasons: 'typing.Any'
 
 
 #
@@ -115,6 +128,13 @@ class ERC2(RC2Stratified):
                 blo=blo, exhaust=exhaust, incr=incr, minz=minz, nohard=True,
                 trim=trim, verbose=verbose)
 
+        # to support earlier versions of PySAT/RC2
+        if not hasattr(self, 'swgt'):
+            self.swgt = {}
+            self.process_sums_ext = self.process_sums_old
+        else:  # for PySAT version >= 0.1.8.dev7
+            self.process_sums_ext = self.process_sums_new
+
         # here is the slack for the total cost
         self.slack = formula.vmax - formula.cost
 
@@ -177,6 +197,7 @@ class ERC2(RC2Stratified):
         self.s2cl_copy = deepcopy(self.s2cl)
         self.sneg_copy = deepcopy(self.sneg)
         self.wght_copy = deepcopy(self.wght)
+        self.swgt_copy = deepcopy(self.swgt)
         self.sums_copy = deepcopy(self.sums)
         self.bnds_copy = deepcopy(self.bnds)
         self.levl_copy = self.levl  # initial optimization level
@@ -204,6 +225,7 @@ class ERC2(RC2Stratified):
         self.s2cl = deepcopy(self.s2cl_copy)
         self.sneg = deepcopy(self.sneg_copy)
         self.wght = deepcopy(self.wght_copy)
+        self.swgt = deepcopy(self.swgt_copy)
         self.sums = deepcopy(self.sums_copy)
         self.bnds = deepcopy(self.bnds_copy)
         self.levl = self.levl_copy
@@ -660,7 +682,7 @@ class ERC2(RC2Stratified):
         # remove unnecessary assumptions
         self.filter_assumps()
 
-    def process_sums_ext(self, bumped, core_lit=None):
+    def process_sums_old(self, bumped, core_lit=None):
         """
             Process cardinality sums participating in a new core.
             Whenever necessary, some of the sum assumptions are
@@ -715,6 +737,62 @@ class ERC2(RC2Stratified):
                         bumped.append(lnew)
                 else:
                     self.wght[lnew] += self.minw
+
+            # put this assumption to relaxation vars
+            self.rels.append(-l)
+
+        # deactivating unnecessary sums
+        self.sums = list(filter(lambda x: x not in to_deactivate, self.sums))
+
+    def process_sums_new(self, bumped, core_lit=None):
+        """
+            Process cardinality sums participating in a new core.
+            Whenever necessary, some of the sum assumptions are
+            removed or split (depending on the value of
+            ``self.minw``). Deleted sums are marked as garbage and are
+            dealt with in :func:`filter_assumps`.
+
+            In some cases, the process involves updating the
+            right-hand sides of the existing cardinality sums (see the
+            call to :func:`update_sum`). The overall procedure is
+            detailed in [1]_.
+        """
+
+        # sums that should be deactivated (but not removed completely)
+        to_deactivate = set([])
+
+        for l in self.core_sums:
+            if self.wght[l] == self.minw:
+                # marking variable as being a part of the core
+                # so that next time it is not used as an assump
+                self.garbage.add(l)
+            else:
+                # do not remove this variable from assumps
+                # since it has a remaining non-zero weight
+                self.wght[l] -= self.minw
+
+                # deactivate this assumption and put at a lower level
+                # if self.done != -1, i.e. if stratification is disabled
+                if self.done != -1 and self.wght[l] < self.blop[self.levl]:
+                    self.wstr[self.wght[l]].append(l)
+                    to_deactivate.add(l)
+
+            if not core_lit:
+                # increase bound for the sum
+                t, b = self.update_sum(l)
+            else:
+                t, b = self.tobj[l], self.bnds[l] + 1
+
+            # updating bounds and weights
+            if b < len(t.rhs):
+                lnew = -t.rhs[b]
+                if lnew not in self.swgt:
+                    self.set_bound(t, b, self.swgt[l])
+
+                    # if this is not an old (known) core
+                    # we need to record the fact of bumping
+                    if not core_lit:
+                        bumped.append(lnew)
 
             # put this assumption to relaxation vars
             self.rels.append(-l)

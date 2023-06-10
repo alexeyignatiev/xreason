@@ -62,13 +62,18 @@ def build_tree(json_tree, node = None, feature_names = None, inverse = False):
             node = xgnode(i, parent = root)
         node.cover = json_node["cover"]
         if "children" in json_node:
-
             node.left_node_id = json_node["yes"]
             node.right_node_id = json_node["no"]
             node.missing_node_id = json_node["missing"]
             node.feature = json_node["split"]
             if (feature_names is not None):
-                node.name = feature_names[node.feature]
+                try:
+                    # node.feature is an index
+                    node.name = feature_names[node.feature]
+                except:
+                    # node.feature is 'f' + index
+                    node.feature = int(node.feature[1:])
+                    node.name = feature_names[node.feature]
             node.threshold = json_node["split_condition"]
             for c, n in enumerate(json_node["children"]):
                 child = extract_data(n, node, feature_names)
@@ -122,6 +127,7 @@ class TreeEnsemble:
         self.original_model = model.get_booster()
         self.base_offset = None
         json_trees = get_xgboost_json(self.original_model)
+
         self.trees = [build_tree(json.loads(t), None, feature_names) for t in json_trees]
         if(nb_classes == 2):
             # NASTY trick for binary

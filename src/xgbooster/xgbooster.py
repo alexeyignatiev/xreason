@@ -22,7 +22,7 @@ from sklearn.metrics import accuracy_score
 import sklearn
 # print('The scikit-learn version is {}.'.format(sklearn.__version__))
 
-from  sklearn.preprocessing import OneHotEncoder
+from  sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import sys
 from six.moves import range
 from .tree import TreeEnsemble
@@ -71,11 +71,18 @@ class XGBooster(object):
             self.num_class = len(set(self.Y))
             self.target_name = list(range(self.num_class))
 
+            # fixing the issue with labels starting from 1 rather than from 0
+            le = LabelEncoder()
+            self.Y = le.fit_transform(self.Y)
+
             param_dist = {'n_estimators':self.options.n_estimators,
                       'max_depth':self.options.maxdepth}
 
             if(self.num_class == 2):
                 param_dist['objective'] = 'binary:logistic'
+                param_dist['eval_metric'] = 'error'
+            else:
+                param_dist['eval_metric'] = 'merror'
 
             self.model = XGBClassifier(**param_dist)
 
@@ -159,8 +166,8 @@ class XGBooster(object):
                         "_maxdepth_" + str(options.maxdepth) +
                         "_testsplit_" + str(options.testsplit)))
 
-        data_suffix =  '.splitdata.pkl'
-        self.modfile =  self.basename + '.mod.pkl'
+        data_suffix = '.splitdata.pkl'
+        self.modfile = self.basename + '.mod.pkl'
 
         self.mod_plainfile =  self.basename + '.mod.txt'
 
@@ -445,11 +452,11 @@ class XGBooster(object):
         else:
             eval_set=[(self.transform(self.X_train), self.Y_train)]
 
-        print("start xgb")
+        # print("start xgb")
         self.model.fit(self.transform(self.X_train), self.Y_train,
                   eval_set=eval_set,
                   verbose=self.options.verb) # eval_set=[(X_test, Y_test)],
-        print("end xgb")
+        # print("end xgb")
 
         evals_result =  self.model.evals_result()
         ########## saving model
