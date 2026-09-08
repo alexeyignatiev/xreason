@@ -638,6 +638,8 @@ class MXEncoder(SMTEncoder):
             ortype = 'alien'
         elif self.optns.encode == 'mxe':
             ortype = 'ext'
+        elif self.optns.encode == 'sat':
+            ortype = 'sat'
         else:
             ortype = 'int'
         with MXReasoner(self.enc, cwinner, solver=self.optns.solver,

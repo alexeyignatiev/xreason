@@ -258,7 +258,7 @@ class XGBooster(object):
             Encode a tree ensemble trained previously.
         """
 
-        if self.options.encode in ('mx', 'mxe', 'maxsat', 'mxint', 'mxa'):
+        if self.options.encode in ('mx', 'mxe', 'maxsat', 'mxint', 'mxa', 'sat'):
             encoder = MXEncoder(self.model, self.feature_names, self.num_class, self)
             self.mxe = encoder
         else:  # smt or smtbool
@@ -287,7 +287,7 @@ class XGBooster(object):
             expl = use_shap(self, sample=sample, nb_features_in_exp=nof_feats)
         else:
             if 'x' not in dir(self):
-                if self.options.encode in ('mx', 'mxe', 'maxsat', 'mxint', 'mxa'):
+                if self.options.encode in ('mx', 'mxe', 'maxsat', 'mxint', 'mxa', 'sat'):
                     self.x = MXExplainer(self.enc, self.intvs, self.imaps,
                             self.ivars, self.feature_names, self.num_class,
                             self.options, self)

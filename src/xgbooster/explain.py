@@ -353,6 +353,8 @@ class MXExplainer(object):
             ortype = 'alien'
         elif self.optns.encode == 'mxe':
             ortype = 'ext'
+        elif self.optns.encode == 'sat':
+            ortype = 'sat'
         else:
             ortype = 'int'
         for clid in range(nof_classes):
@@ -449,7 +451,7 @@ class MXExplainer(object):
             scores[clid] = 0
 
             for lit, wght in self.xgb.mxe.enc[clid].leaves:
-                if model[abs(lit) - 1] > 0:
+                if model[abs(lit) - 1] == lit:
                     scores[clid] += wght
 
         # returning the class corresponding to the max score

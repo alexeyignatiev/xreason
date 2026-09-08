@@ -19,6 +19,7 @@ from .erc2 import ERC2
 import math
 from pysat.examples.rc2 import RC2Stratified
 from pysat.formula import CNF, WCNF, IDPool
+from pysat.solvers import Solver
 import subprocess
 import sys
 import tempfile
@@ -120,6 +121,18 @@ class MXReasoner:
                         adapt=self.am1, blo='cluster', exhaust=self.exhaust,
                         minz=self.minz, verbose=0)
 
+            elif self.ortype == 'sat':
+                # creating a SAT solver with native cardinality support
+                self.oracles[clid] = Solver(name='cd195',
+                                            bootstrap_with=self.formulas[clid].hard)
+
+                # activating cardinality reasoning
+                self.oracles[clid].activate_atmost()
+
+                # adding the PB constraint
+                am = [[-cl[0] for cl in self.formulas[clid].soft], self.formulas[clid].vmax - self.formulas[clid].cost, self.formulas[clid].wght]
+                self.oracles[clid].add_atmost(*am)
+
     def init_soft(self, encoding, clid):
         """
             Processing the leaves and creating the set of soft clauses.
@@ -170,9 +183,9 @@ class MXReasoner:
                 wghts[l1] -= minw
                 wghts[l2] -= minw
 
-                # updating the cost if there is a conflict between l and -l
-                if wghts[l1] * wghts[l2] > 0:
-                    cost += abs(minw)
+                # since l and -l are complementary, minw is extracted as a
+                # constant; cost is the negation of that constant
+                cost -= minw
 
                 i += 2
             else:
@@ -190,11 +203,12 @@ class MXReasoner:
         self.formulas[clid].vmax = sum(wghts.values())
 
         # processing all AtMost1 constraints
-        atmosts = set([tuple([l for l in am1 if l in wghts and wghts[l] != 0]) for am1 in atmosts])
-        for am1 in sorted(atmosts, key=lambda am1: len(am1), reverse=True):
-            if len(am1) < 2:
-                continue
-            cost += self.process_am1(self.formulas[clid], am1, wghts, vpool)
+        if self.ortype != 'sat':
+            atmosts = set([tuple([l for l in am1 if l in wghts and wghts[l] != 0]) for am1 in atmosts])
+            for am1 in sorted(atmosts, key=lambda am1: len(am1), reverse=True):
+                if len(am1) < 2:
+                    continue
+                cost += self.process_am1(self.formulas[clid], am1, wghts, vpool)
 
         # here is the start cost
         self.formulas[clid].cost = cost
@@ -304,6 +318,21 @@ class MXReasoner:
                 self.reason = None
 
             # if no counterexample exists, return None
+        elif self.ortype == 'sat':
+            for clid in self.oracles:
+                # calling the solver
+                status = self.oracles[clid].solve(assumptions=feats)
+
+                if status:
+                    model = self.oracles[clid].get_model()
+                    assert self.get_winner(model, clid) != self.target, \
+                            'SAT model does not represent a misclassification'
+                    return model
+
+                self.reason = self.reason.union(set(self.oracles[clid].get_core()))
+
+            if not self.reason:
+                self.reason = None
         else:
             # here we start an external MaxSAT solver every time
             for clid in self.formulas:
@@ -360,7 +389,7 @@ class MXReasoner:
             self.scores[label] = 0
 
             for lit, wght in self.values[label]:
-                if model[abs(lit) - 1] > 0:
+                if model[abs(lit) - 1] == lit:
                     self.scores[label] += wght
 
         if self.scores[clid] >= self.scores[self.target]:

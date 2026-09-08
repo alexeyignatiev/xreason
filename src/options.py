@@ -193,6 +193,8 @@ class Options(object):
         elif self.encode in ('mx', 'mxe', 'maxsat', 'mxint', 'mxa') and self.solver in ('cvc4', 'mathsat', 'yices', 'z3'):
             # setting the default solver for the mxreasoning-based oracle
             self.solver = 'm22'
+        elif self.encode == 'sat':
+            self.solver = 'cd195'
 
         # assigning the encoding for cardinality constraints
         self.cardenc = encmap[self.cardenc]
@@ -215,7 +217,7 @@ class Options(object):
         print('        -d, --maxdepth=<int>       Maximal depth of a tree')
         print('                                   Available values: [1, INT_MAX] (default = 3)')
         print('        -e, --encode=<string>      Encode a previously trained model')
-        print('                                   Available values: maxsat, smt, smtbool, none (default = none)')
+        print('                                   Available values: maxsat, sat, smt, smtbool, none (default = none)')
         print('        -E, --exhaust              Apply core exhaustion when running RC2')
         print('        -h, --help                 Show this message')
         print('        -l, --use-lime             Use LIME to compute an explanation')
